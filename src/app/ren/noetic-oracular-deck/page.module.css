@@ -1,0 +1,280 @@
+.nodRoot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: clamp(16px,2.5vw,32px); /* breathing room all around */
+  /* background: url('/neutral-background-tile.png') repeat; // if you want */
+}
+.container{
+  max-width:68rem;
+  width:100%;
+  margin: 0 auto;    /* horiz center only */
+  box-shadow:0 0 1.25rem rgba(182,38,38,.2);
+  text-align:left;
+  padding: 1.25rem;
+}
+.header {
+  display: flex;
+  align-items: center;
+  height: 30vh;
+  margin-bottom: -0.25rem;
+}
+
+.logoImg {
+  height: 80%;
+  width: auto;
+  margin-right: 1.25rem;
+  object-fit: contain;
+}
+
+.mobileTitle {
+  display: none;
+}
+
+.mobileByline {
+  display: none;
+}
+
+.nodRoot h1 {
+  font-size: 4.6rem;
+  margin: 0;
+  font-weight: 400;
+  line-height: 4.9rem;
+}
+
+.titleAndByline {
+  display: flex;
+  align-items: center;
+}
+
+.nodRoot h2 {
+  font-size: 2.65rem;
+  color: #e3534c;
+  font-weight: 200;
+  line-height: 3.75rem;
+  margin-top: -2rem;
+}
+
+.nodRoot span {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #3c3c3c;
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  margin-left: 1rem;
+  padding-top: .5rem;
+}
+
+.deckImg {
+  max-width: 50%;
+  height: auto;
+  margin-right: 1.25rem;
+  box-shadow: 0 0 0.625rem rgba(255, 255, 255, 0.1);
+}
+
+.text {
+  flex: 1;
+  margin-left: 2rem;
+  margin-right: 1rem;
+  padding: 0;
+}
+
+.byline {
+  margin-left: 0.5rem;
+  font-weight: 100;
+  line-height: 1.5rem;
+  padding-bottom: .2rem;
+}
+
+.description {
+  font-size: .9rem;
+  line-height: 1.6;
+  margin: 1rem 0 0 0;
+  font-weight: 100;
+}
+
+.buttonContainer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.buyNowButton {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  background-color: #e3534c;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 400;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+.mobileBuyNowButton {
+  display: none;
+}
+
+.buyNowButton:hover {
+  background-color: #c4423b;
+}
+
+/* ===== Mobile (<= 1096px) ===== */
+@media (max-width: 1096px) {
+  .nodRoot h1 {
+    font-size: 3rem;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+    height: auto;
+  }
+
+  .logoImg {
+    height: 5rem;
+    width: auto;
+    margin-bottom: 1rem;
+  }
+
+  .titleAndByline {
+    display: none;
+  }
+
+  .content {
+    flex-direction: column;
+    align-items: center;
+    margin-left: 0;
+  }
+
+  .deckImg {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .text {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .buttonContainer {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .buyNowButton {
+    width: 80%;
+  }
+
+  .desktopTitle {
+    display: none;
+  }
+
+  .mobileTitle {
+    display: block;
+    font-size: 3rem;
+    font-weight: 400;
+    margin: 0;
+  }
+}
+
+/* ===== Small phones (<= 480px) ===== */
+@media (max-width: 480px) {
+  .nodRoot h1 {
+    font-size: 1rem;
+  }
+
+  .titleAndByline {
+    display: none;
+  }
+
+  .nodRoot h2 {
+    font-size: 1.5rem;
+    margin-right: 0.25rem;
+  }
+
+  .byline {
+    display: none;
+  }
+
+  .mobileByline {
+    display: block;
+    font-size: 1rem;
+    font-weight: 100;
+    margin-top: 0rem;
+  }
+
+  .nodRoot span {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .header {
+    text-align: center;
+  }
+
+  .content {
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .deckImg {
+    max-width: 100%;
+    margin: 0 auto 0 auto;
+  }
+
+  .logoImg {
+    height: 6rem;
+    width: auto;
+    margin-right: 1.25rem;
+    object-fit: contain;
+  }
+
+  .text {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .description {
+    font-size: 0.9rem;
+  }
+
+  .buyNowButton {
+    display: none;
+  }
+
+  .mobileBuyNowButton {
+    display: block;
+    margin: 1rem auto 0 auto;
+    padding: 0.5rem 1rem;
+    background-color: #e3534c;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 400;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+  }
+
+  .desktopTitle {
+    display: none;
+  }
+
+  .mobileTitle {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0;
+  }
+}

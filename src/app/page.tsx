@@ -2,7 +2,7 @@
 
 import { DropdownMenu } from "@/components/dropdown-menu/dropdown-menu";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function LandingPage() {
   // State for the menu
@@ -13,10 +13,19 @@ export default function LandingPage() {
   >([]);
   const [activeGlyph, setActiveGlyph] = useState<string | null>(null);
 
-  // Hide dropdown if user clicks anywhere outside:
-  const handlePageClick = () => {
+  // Keep a ref to the trigger glyph so we can restore focus on close (ESC/click-away)
+  const triggerRef = useRef<HTMLAnchorElement | null>(null);
+
+  // Unified close: close the menu, clear activeGlyph, restore focus to trigger
+  const closeMenu = () => {
     setMenuOpen(false);
     setActiveGlyph(null);
+    triggerRef.current?.focus();
+  };
+
+  // Hide dropdown if user clicks anywhere outside:
+  const handlePageClick = () => {
+    closeMenu();
   };
 
   const getGlyphOptions = (
@@ -43,10 +52,7 @@ export default function LandingPage() {
             label: "What is the organiztion?",
             href: "/ka/what-is-the-organization",
           },
-          {
-            label: "Where do I fit in?",
-            href: "/ka/where-do-i-fit-in",
-          },
+          { label: "Where do I fit in?", href: "/ka/where-do-i-fit-in" },
           {
             label: "A Cybernetically Turbulent World",
             href: "/ka/a-cybernetically-turbulent-world",
@@ -57,7 +63,7 @@ export default function LandingPage() {
         return [
           {
             label: "Noetic Oracular Deck",
-            href: "https://appliednoetics.org/",
+            href: "/ren/noetic-oracular-deck",
           },
         ];
       case "sheut":
@@ -85,11 +91,14 @@ export default function LandingPage() {
     e.preventDefault();
     e.stopPropagation();
 
+    // Save the trigger for focus return when menu closes
+    triggerRef.current = e.currentTarget;
+
     // HTMLElement that was clicked
     const el = e.currentTarget as HTMLElement;
     const rect = el.getBoundingClientRect();
 
-    //   centre of the glyph *in the viewport*
+    // centre of the glyph *in the viewport*
     const x = rect.left + rect.width / 2 + window.scrollX;
     const y = rect.top + rect.height / 2 + window.scrollY;
 
@@ -99,6 +108,31 @@ export default function LandingPage() {
     setActiveGlyph(glyphName);
   };
 
+  // Keyboard support for anchors (Space/Enter activates)
+  const handleGlyphKeyDown = (
+    e: React.KeyboardEvent<HTMLAnchorElement>,
+    glyphName: string
+  ) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Save the trigger for focus return when menu closes
+      triggerRef.current = e.currentTarget;
+
+      // Synthesize the same logic as click
+      const el = e.currentTarget as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2 + window.scrollX;
+      const y = rect.top + rect.height / 2 + window.scrollY;
+
+      setMenuPosition({ x, y });
+      setMenuOptions(getGlyphOptions(glyphName));
+      setMenuOpen(true);
+      setActiveGlyph(glyphName);
+    }
+  };
+
   return (
     <main
       className={`p-4 flex justify-center items-center min-h-screen transition-colors duration-300 ${
@@ -106,173 +140,217 @@ export default function LandingPage() {
       }`}
       onClick={handlePageClick}
     >
-      {/* Wrapper for scaling */}
-      <div
-        className="relative scale-100 sm:scale-90 md:scale-90 lg:scale-90 xl:scale-90"
-        style={{
-          transformOrigin: "center",
-          maxWidth: "100%",
-        }}
-      >
-        {/* The Grid */}
-        <div
-          className="grid auto-rows-max gap-y-4 gap-x-6 justify-items-center items-center max-w-screen-lg w-full"
-          style={{
-            gridTemplateAreas: `
-            "left1 . center1 . right1"
-            ". left-center2 center2 right-center2 ."
-            "left3 center3 center3 center3 right3"
-          `,
-            gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
-          }}
-        >
-          {/* Outer glyphs */}
+      {/* Wrapper: full viewport height (minus main padding) + responsive breathing room ALL around */}
+      <div className="relative mx-auto w-full max-w-screen-lg h-[calc(100dvh-2rem)] p-[clamp(8px,3vmin,24px)]">
+        {/* 3×3 grid that fills the wrapper */}
+        <div className="grid grid-cols-3 grid-rows-3 gap-8 w-full h-full items-stretch justify-items-stretch">
+          {/* Top row: atziluth, ka, yetzirah */}
           <a
+            href="#"
+            role="button"
+            aria-label="Open menu for atziluth"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "atziluth"}
             className={
-              "glyph -mt-6 cursor-pointer transition-opacity" +
-              (activeGlyph === "assiah" ? " opacity-60" : "")
-            }
-            style={{ gridArea: "right3", alignSelf: "start" }}
-            onClick={(e) => handleGlyphDropdownClick(e, "assiah")}
-          >
-            <Image
-              src="/assiah.svg"
-              alt="Glyph Right 3"
-              width={150}
-              height={150}
-              className="w-[24vw] h-[24vw] sm:w-[9vw] sm:h-[9vw]"
-            />
-          </a>
-          <a
-            className={
-              "glyph -mt-6 cursor-pointer transition-opacity" +
-              (activeGlyph === "beri-yah" ? " opacity-20" : "")
-            }
-            style={{ gridArea: "left3", alignSelf: "start" }}
-            onClick={(e) => handleGlyphDropdownClick(e, "beri-yah")}
-          >
-            <Image
-              src="/beri-yah.svg"
-              alt="Glyph Left 3"
-              width={150}
-              height={150}
-              className="w-[24vw] h-[24vw] sm:w-[9vw] sm:h-[9vw]"
-            />
-          </a>
-          <a
-            className={
-              "glyph cursor-pointer" +
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
               (activeGlyph === "atziluth" ? " opacity-20" : "")
             }
-            style={{ gridArea: "left1", alignSelf: "end" }}
             onClick={(e) => handleGlyphDropdownClick(e, "atziluth")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "atziluth")}
+            title="atziluth"
           >
             <Image
               src="/atziluth.svg"
-              alt="Glyph Left 1"
-              width={150}
-              height={150}
-              className="w-[24vw] h-[24vw] sm:w-[9vw] sm:h-[9vw]"
-            />
-          </a>
-          <a
-            className={
-              "glyph -mb-2 cursor-pointer transition-opacity" +
-              (activeGlyph === "yetzirah" ? " opacity-20" : "")
-            }
-            style={{ gridArea: "right1", alignSelf: "end" }}
-            onClick={(e) => handleGlyphDropdownClick(e, "yetzirah")}
-          >
-            <Image
-              src="/yetzirah.svg"
-              alt="Glyph Right 1"
-              width={150}
-              height={150}
-              className="w-[24vw] h-[24vw] sm:w-[9vw] sm:h-[9vw]"
+              alt="atziluth"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
             />
           </a>
 
-          {/* Center glyphs clockwise */}
           <a
+            href="#"
+            role="button"
+            aria-label="Open menu for ka"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "ka"}
             className={
-              "glyph mb-8 cursor-pointer transition-opacity" +
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
               (activeGlyph === "ka" ? " opacity-20" : "")
             }
-            style={{ gridArea: "center1", alignSelf: "start" }}
             onClick={(e) => handleGlyphDropdownClick(e, "ka")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "ka")}
+            title="ka"
           >
             <Image
               src="/ka.svg"
-              alt="Glyph Center 1"
-              width={150}
-              height={150}
-              className="w-[25vw] h-[25vw] sm:w-[10vw] sm:h-[10vw]"
-            />
-          </a>
-          <a
-            className={
-              "glyph mb-8 cursor-pointer transition-opacity" +
-              (activeGlyph === "ren" ? " opacity-20" : "")
-            }
-            style={{ gridArea: "right-center2" }}
-            onClick={(e) => handleGlyphDropdownClick(e, "ren")}
-          >
-            <Image
-              src="/ren.svg"
-              alt="Glyph Right Center 2"
-              width={150}
-              height={150}
-              className="w-[25vw] h-[25vw] sm:w-[10vw] sm:h-[10vw]"
-            />
-          </a>
-          <a
-            className={
-              "glyph mt-8 ml-6 cursor-pointer transition-opacity" +
-              (activeGlyph === "ba" ? " opacity-20" : "")
-            }
-            style={{ gridArea: "center3" }}
-            onClick={(e) => handleGlyphDropdownClick(e, "ba")}
-          >
-            <Image
-              src="/ba.svg"
-              alt="Glyph Center 3"
-              width={150}
-              height={150}
-              className="w-[27vw] h-[27vw] sm:w-[16vw] sm:h-[16vw]"
-            />
-          </a>
-          <a
-            className={
-              "glyph cursor-pointer transition-opacity" +
-              (activeGlyph === "sheut" ? " opacity-20" : "")
-            }
-            style={{ gridArea: "left-center2", alignSelf: "start" }}
-            onClick={(e) => handleGlyphDropdownClick(e, "sheut")}
-          >
-            <Image
-              src="/sheut.svg"
-              alt="Glyph Left Center 2"
-              width={150}
-              height={150}
-              className="w-[26vw] h-[26vw] sm:w-[11vw] sm:h-[11vw]"
+              alt="ka"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
             />
           </a>
 
-          {/* Innermost glyph */}
           <a
+            href="#"
+            role="button"
+            aria-label="Open menu for yetzirah"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "yetzirah"}
             className={
-              "glyph pb-4 cursor-pointer transition-opacity" +
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
+              (activeGlyph === "yetzirah" ? " opacity-20" : "")
+            }
+            onClick={(e) => handleGlyphDropdownClick(e, "yetzirah")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "yetzirah")}
+            title="yetzirah"
+          >
+            <Image
+              src="/yetzirah.svg"
+              alt="yetzirah"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
+            />
+          </a>
+
+          {/* Middle row: sheut, ib, ren */}
+          <a
+            href="#"
+            role="button"
+            aria-label="Open menu for sheut"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "sheut"}
+            className={
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
+              (activeGlyph === "sheut" ? " opacity-20" : "")
+            }
+            onClick={(e) => handleGlyphDropdownClick(e, "sheut")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "sheut")}
+            title="sheut"
+          >
+            <Image
+              src="/sheut.svg"
+              alt="sheut"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
+            />
+          </a>
+
+          <a
+            href="#"
+            role="button"
+            aria-label="Open menu for ib"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "ib"}
+            className={
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
               (activeGlyph === "ib" ? " opacity-20" : "")
             }
-            style={{ gridArea: "center2" }}
             onClick={(e) => handleGlyphDropdownClick(e, "ib")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "ib")}
+            title="ib"
           >
             <Image
               src="/ib.svg"
-              alt="Glyph Center 2"
-              width={150}
-              height={150}
-              className="w-[24vw] h-[24vw] sm:w-[9vw] sm:h-[9vw]"
+              alt="ib"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
+            />
+          </a>
+
+          <a
+            href="#"
+            role="button"
+            aria-label="Open menu for ren"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "ren"}
+            className={
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
+              (activeGlyph === "ren" ? " opacity-20" : "")
+            }
+            onClick={(e) => handleGlyphDropdownClick(e, "ren")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "ren")}
+            title="ren"
+          >
+            <Image
+              src="/ren.svg"
+              alt="ren"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
+            />
+          </a>
+
+          {/* Bottom row: beri-yah, ba, assiah */}
+          <a
+            href="#"
+            role="button"
+            aria-label="Open menu for beri-yah"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "beri-yah"}
+            className={
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
+              (activeGlyph === "beri-yah" ? " opacity-20" : "")
+            }
+            onClick={(e) => handleGlyphDropdownClick(e, "beri-yah")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "beri-yah")}
+            title="beri-yah"
+          >
+            <Image
+              src="/beri-yah.svg"
+              alt="beri-yah"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
+            />
+          </a>
+
+          <a
+            href="#"
+            role="button"
+            aria-label="Open menu for ba"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "ba"}
+            className={
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
+              (activeGlyph === "ba" ? " opacity-20" : "")
+            }
+            onClick={(e) => handleGlyphDropdownClick(e, "ba")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "ba")}
+            title="ba"
+          >
+            <Image
+              src="/ba.svg"
+              alt="ba"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
+            />
+          </a>
+
+          <a
+            href="#"
+            role="button"
+            aria-label="Open menu for assiah"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen && activeGlyph === "assiah"}
+            className={
+              "glyph relative block w-full h-full cursor-pointer transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 " +
+              (activeGlyph === "assiah" ? " opacity-60" : "")
+            }
+            onClick={(e) => handleGlyphDropdownClick(e, "assiah")}
+            onKeyDown={(e) => handleGlyphKeyDown(e, "assiah")}
+            title="assiah"
+          >
+            <Image
+              src="/assiah.svg"
+              alt="assiah"
+              fill
+              sizes="33vw"
+              className="object-contain object-center"
             />
           </a>
         </div>
@@ -283,7 +361,7 @@ export default function LandingPage() {
         isOpen={menuOpen}
         position={menuPosition}
         options={menuOptions}
-        onClose={() => setMenuOpen(false)}
+        onClose={closeMenu}
       />
     </main>
   );
