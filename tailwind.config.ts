@@ -8,9 +8,14 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      keyframes: {
+        dropdown: {
+          "0%": { scale: "0", opacity: "0" },
+          "100%": { scale: "1", opacity: "1" },
+        },
+      },
+      animation: {
+        dropdown: "dropdown 500ms ease-out forwards",
       },
     },
   },
